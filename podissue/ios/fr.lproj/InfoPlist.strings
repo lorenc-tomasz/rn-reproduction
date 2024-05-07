@@ -1,0 +1,9 @@
+/*
+  InfoPlist.strings
+  
+*/
+
+NSLocationAlwaysAndWhenInUseUsageDescription = "We need to use your location.";
+NSLocationWhenInUseUsageDescription = "We need to use your location.";
+NSUserTrackingUsageDescription = "We may need your identity for purpose of improvement of services we provide.";
+NSUserNotificationsUsageDescription = "We'd like to keep you informed about important updates and reminders. Allow notifications to enhance your app experience.";

@@ -1,0 +1,197 @@
+diff --git a/node_modules/react-native-geolocation-service/ios/LocationProvider.swift b/node_modules/react-native-geolocation-service/ios/LocationProvider.swift
+index c4411a2..b4fbfae 100644
+--- a/node_modules/react-native-geolocation-service/ios/LocationProvider.swift
++++ b/node_modules/react-native-geolocation-service/ios/LocationProvider.swift
+@@ -37,39 +37,48 @@ class LocationProvider: NSObject {
+   }
+ 
+   func getCurrentLocation(_ options: LocationOptions) -> Void {
+-    if let location = locationManager.location {
+-      let elapsedTime = (Date().timeIntervalSince1970 - location.timestamp.timeIntervalSince1970) * 1000
+-
+-      #if DEBUG
+-        NSLog("RNLocation: elapsedTime=\(elapsedTime)ms, maxAge=\(options.maximumAge)ms")
+-      #endif
+-
+-      if elapsedTime < options.maximumAge {
+-        #if DEBUG
+-          NSLog("RNLocation: returning cached location")
+-        #endif
+-        delegate?.onLocationChange(self, location: location)
+-        return
++    DispatchQueue.global(qos: .background).async { [weak self] in
++      guard let self = self else { return }
++
++      if let location = self.locationManager.location {
++          let elapsedTime = (Date().timeIntervalSince1970 - location.timestamp.timeIntervalSince1970) * 1000
++
++          #if DEBUG
++            NSLog("RNLocation: elapsedTime=\(elapsedTime)ms, maxAge=\(options.maximumAge)ms")
++          #endif
++
++          if elapsedTime < options.maximumAge && isValidCoordinates(location.coordinate) {
++              #if DEBUG
++                NSLog("RNLocation: returning cached location")
++              #endif
++              DispatchQueue.main.async {
++                  self.delegate?.onLocationChange(self, location: location)
++              }
++              return
++          }
+       }
+-    }
+-
+-    isSingleUpdate = true
+-    locationOptions = options
+ 
+-    locationManager.desiredAccuracy = options.accuracy
+-    locationManager.distanceFilter = kCLDistanceFilterNone
+-    locationManager.requestLocation()
+-
+-    let timeout = options.timeout
+-
+-    if timeout > 0 && timeout != Double.infinity {
+-      timeoutTimer = Timer.scheduledTimer(
+-        timeInterval: timeout / 1000.0, // timeInterval is in seconds
+-        target: self,
+-        selector: #selector(timerFired),
+-        userInfo: nil,
+-        repeats: false
+-      )
++      DispatchQueue.main.async {
++        self.isSingleUpdate = true
++        self.locationOptions = options
++          
++        self.locationManager.desiredAccuracy = options.accuracy
++        self.locationManager.distanceFilter = kCLDistanceFilterNone
++        self.locationManager.requestLocation()
++          
++        let timeout = options.timeout
++          
++        if timeout > 0 && timeout != Double.infinity {
++          self.timeoutTimer?.invalidate()
++          self.timeoutTimer = Timer.scheduledTimer(
++            timeInterval: timeout / 1000.0, // timeInterval is in seconds
++            target: self,
++            selector: #selector(self.timerFired),
++            userInfo: nil,
++            repeats: false
++          )
++        }
++      }
+     }
+   }
+ 
+@@ -81,13 +90,14 @@ class LocationProvider: NSObject {
+     locationManager.distanceFilter = options.distanceFilter
+     locationManager.allowsBackgroundLocationUpdates = options.backgroundUpdates
+     locationManager.pausesLocationUpdatesAutomatically = options.pauseUpdatesAutomatically
++    
+     if #available(iOS 11.0, *) {
+       locationManager.showsBackgroundLocationIndicator = options.backgroundIndicator
+     }
+ 
+     options.significantChanges
+-      ? locationManager.startMonitoringSignificantLocationChanges()
+-      : locationManager.startUpdatingLocation()
++    ? locationManager.startMonitoringSignificantLocationChanges()
++    : locationManager.startUpdatingLocation()
+   }
+ 
+   func removeLocationUpdates() -> Void {
+@@ -96,8 +106,8 @@ class LocationProvider: NSObject {
+     }
+ 
+     locationOptions!.significantChanges
+-      ? locationManager.stopMonitoringSignificantLocationChanges()
+-      : locationManager.stopUpdatingLocation()
++    ? locationManager.stopMonitoringSignificantLocationChanges()
++    : locationManager.stopUpdatingLocation()
+   }
+ 
+   @objc private func timerFired(timer: Timer) -> Void {
+@@ -124,6 +134,19 @@ extension LocationProvider: CLLocationManagerDelegate {
+   func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+     guard let location: CLLocation = locations.last else { return }
+ 
++    // Validate coordinates
++    if !isValidCoordinates(location.coordinate) {
++      #if DEBUG
++        NSLog("RNLocation: coordinate not valid")
++      #endif
++        
++      // If coordinates are not valid or near Null Island, request location again
++      if (isSingleUpdate) {
++        manager.requestLocation()
++      }
++      return
++    }
++      
+     #if DEBUG
+       NSLog("RNLocation: \(location.coordinate.latitude), \(location.coordinate.longitude)")
+     #endif
+@@ -137,11 +160,14 @@ extension LocationProvider: CLLocationManagerDelegate {
+   }
+ 
+   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+-    var err = LocationError.POSITION_UNAVAILABLE
+-    var message: String? = nil
++    DispatchQueue.global(qos: .background).async { [weak self] in
++      guard let self = self else { return }
+       
+-    if let clErr = error as? CLError {
+-      switch clErr.code {
++      var err = LocationError.POSITION_UNAVAILABLE
++      var message: String? = nil
++
++      if let clErr = error as? CLError {
++        switch clErr.code {
+         case CLError.denied:
+           if !CLLocationManager.locationServicesEnabled() {
+             message = "Location service is turned off"
+@@ -152,16 +178,38 @@ extension LocationProvider: CLLocationManagerDelegate {
+           message = "Unable to retrieve location due to a network failure"
+         default:
+           break
++        }
++      } else {
++        NSLog("RNLocation: \(error.localizedDescription)")
+       }
+-    } else {
+-      NSLog("RNLocation: \(error.localizedDescription)")
+-    }
+ 
+-    delegate?.onLocationError(self, err: err, message: message)
++      DispatchQueue.main.async {
++        self.delegate?.onLocationError(self, err: err, message: message)
+ 
+-    if (isSingleUpdate) {
+-      timeoutTimer?.invalidate()
+-      locationManager.stopUpdatingLocation()
++        if (self.isSingleUpdate) {
++          self.timeoutTimer?.invalidate()
++          self.locationManager.stopUpdatingLocation()
++        }
++      }
+     }
+   }
++    
++  func isValidCoordinates(_ coordinate: CLLocationCoordinate2D) -> Bool {
++    // Check if the coordinates are valid
++    if !CLLocationCoordinate2DIsValid(coordinate) {
++      return false
++    }
++    
++    // Create CLLocation instances for the coordinate and Null Island
++    let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
++    let nullIsland = CLLocation(latitude: 0, longitude: 0)
++    
++    // Calculate the distance from Null Island
++    let distanceFromNullIsland = location.distance(from: nullIsland) / 1000 // distance is in meters, convert to km
++    
++    // Check done, becuse user can disable precise location
++    let isNearNullIsland = distanceFromNullIsland < 2500
++    
++    return !(coordinate.latitude == 0 && coordinate.longitude == 0) && !isNearNullIsland
++  }
+ }

@@ -1,0 +1,20 @@
+diff --git a/node_modules/react-native-onetrust-cmp/index.ts b/node_modules/react-native-onetrust-cmp/index.ts
+index dd1746f..f5f4d5d 100644
+--- a/node_modules/react-native-onetrust-cmp/index.ts
++++ b/node_modules/react-native-onetrust-cmp/index.ts
+@@ -87,13 +87,13 @@ export default class OTPublishersNativeSDK{
+   static listenForConsentChanges(category:string, callback = function (category:string,consent:number) {}) {
+     if (Platform.OS === 'android') {
+       OneTrust.listenForConsentChanges(category);
+-      DeviceEventEmitter.addListener(category, (consent:number) =>
++      return DeviceEventEmitter.addListener(category, (consent:number) =>
+         callback(category, consent),
+       );
+     } else {
+       iOSBroadcast.listenForConsentChanges(category);
+       const consentListener = new NativeEventEmitter(iOSBroadcast);
+-      consentListener.addListener(category, (consent:number) =>
++      return consentListener.addListener(category, (consent:number) =>
+         callback(category, consent),
+       );
+     }

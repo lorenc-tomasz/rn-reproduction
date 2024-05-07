@@ -1,0 +1,14 @@
+*.md
+*.json
+**/*{.,-}min.js
+node_modules/
+/lib/
+/flow-typed/
+/ios/
+/android/
+/docs/
+/.git/
+/metro.config.js
+/babel.config.js
+/jest.config.js
+/.eslintrc.js

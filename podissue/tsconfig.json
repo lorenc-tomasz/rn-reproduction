@@ -1,0 +1,29 @@
+{
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "jsx": "react-native",
+    "baseUrl": "./src",
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": true,
+    "paths": {
+      "_assets": ["./assets"],
+      "_components": ["./components"],
+      "_atoms": ["./components/atoms"],
+      "_molecules": ["./components/molecules"],
+      "_organisms": ["./components/organisms"],
+      "_layouts": ["./components/layouts"],
+      "_templates": ["./components/templates"],
+      "_navigations": ["./navigations"],
+      "_reducers": ["./reducers"],
+      "_scenes/*": ["./scenes/*"],
+      "_services": ["./services"],
+      "_styles": ["./styles"],
+      "_utils/*": ["./utils/*"],
+      "_types/*": ["./types/*"],
+      "_stores/*": ["./stores/*"]
+    },
+    "typeRoots": ["node_modules/@types", "./src/types"] /* List of folders to include type definitions from. */
+  },
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "__tests__"]
+}

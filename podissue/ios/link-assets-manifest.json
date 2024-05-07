@@ -1,0 +1,69 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Pcardapp-glyphs.ttf",
+      "sha1": "0fa17f32f31c1a407f0d6377508dc400dd8b0be7"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Bold.ttf",
+      "sha1": "3dd713113ff2d79b94d2df343e2e28fa8e7279cf"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Light.ttf",
+      "sha1": "92cc3b6f9440193c12fd02ed690e434d685a9cc8"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Medium.ttf",
+      "sha1": "f6783010d5def128c4a1539333324f75701d9bab"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Regular.ttf",
+      "sha1": "096c9245b6a192d1403a82848e104a65f578a8ec"
+    },
+    {
+      "path": "src/assets/images/car_park_image.jpg",
+      "sha1": "524e45113722056728a253354a6d44f9a434bf73"
+    },
+    {
+      "path": "src/assets/images/ev_charging/connect_plug_background.png",
+      "sha1": "bbc3639e0db38fb2d079f3c4859b1d055d79584b"
+    },
+    {
+      "path": "src/assets/images/my_account_background.png",
+      "sha1": "3aa3d122388a8206f5558ff65b84265c8e713161"
+    },
+    {
+      "path": "src/assets/images/nfc_help_android.png",
+      "sha1": "91cad16e2c911d4fe6cca3c83f3329736a3afc7f"
+    },
+    {
+      "path": "src/assets/images/nfc_help_android_2.png",
+      "sha1": "5c3c98156af3a618e3e0dbff52271d112bf76faf"
+    },
+    {
+      "path": "src/assets/images/nfc_help_android_antenna_position.png",
+      "sha1": "141e63c2906092843f1a8bf0c641dc0b984078fa"
+    },
+    {
+      "path": "src/assets/images/nfc_help_ios.png",
+      "sha1": "4258f925471a5ef8a984341561863cc759a90a3c"
+    },
+    {
+      "path": "src/assets/images/nfc_help_ios_2.png",
+      "sha1": "3096ad75e448458524cf9a1c09009156211f5b8d"
+    },
+    {
+      "path": "src/assets/images/pcard_app_logo.png",
+      "sha1": "69e7bd2857ee1d99fb6c66c44e1e85cc9bf7be06"
+    },
+    {
+      "path": "src/assets/images/pcard_dots_background.png",
+      "sha1": "90cd4dc660b32918588f46ba2e79898e3570c700"
+    },
+    {
+      "path": "src/assets/notifications/create_account_reminder.png",
+      "sha1": "b9c4f6b14af6e594a8e48732c4f75e342fb59190"
+    }
+  ]
+}

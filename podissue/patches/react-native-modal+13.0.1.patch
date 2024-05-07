@@ -1,0 +1,38 @@
+diff --git a/node_modules/react-native-modal/dist/modal.js b/node_modules/react-native-modal/dist/modal.js
+index 80f4e75..ecc611a 100644
+--- a/node_modules/react-native-modal/dist/modal.js
++++ b/node_modules/react-native-modal/dist/modal.js
+@@ -375,17 +375,22 @@ export class ReactNativeModal extends React.Component {
+                     }
+                     if (this.props.isVisible) {
+                         this.open();
+-                    }
+-                    else {
+-                        this.setState({
+-                            showContent: false,
+-                        }, () => {
+-                            this.setState({
+-                                isVisible: false,
+-                            }, () => {
+-                                this.props.onModalHide();
+-                            });
+-                        });
++                    } else {
++                      /*
++                      * Once the animation is complete, we need to update the state.
++                      * If we update the state in two steps (first setting 'showContent' to false
++                      * and then 'isVisible' to false), a render occurs after 'showContent' is set
++                      * to false but while 'isVisible' is still true. This causes a brief flash or "blink"
++                      * when the modal is closing on iOS devices. To avoid this, we update both
++                      * 'showContent' and 'isVisible' in one go. After the state update, we call
++                      * the 'onModalHide' prop function.
++                      */
++                      this.setState({
++                        showContent: false,
++                        isVisible: false,
++                      }, () => {
++                        this.props.onModalHide();
++                      });
+                     }
+                 });
+             }
